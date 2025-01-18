@@ -150,7 +150,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-violet-600 via-purple-600 to-pink-600 pb-20">
+    <div className="min-h-screen bg-gradient-to-b from-violet-600 via-purple-600 to-pink-600 pb-20 pt-8">
       <div className="max-w-md mx-auto">
         {error && (
           <Alert variant="destructive" className="m-4">
