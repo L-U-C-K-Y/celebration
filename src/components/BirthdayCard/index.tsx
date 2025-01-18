@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Gift,
   Share2,
@@ -42,6 +42,7 @@ import { TopCelebrators } from './TopCelebrators';
 import { ActivityFeed } from './ActivityFeed';
 import { AddCelebrationDialog } from './AddCelebrationDialog';
 import { CelebrationCollage } from './CelebrationCollage';
+import { Contributors } from './Contributors';
 import type { Person } from '@/types';
 
 export function BirthdayCard() {
@@ -77,6 +78,7 @@ export function BirthdayCard() {
         id: '1',
         type: 'photo',
         author: {
+          id: '1',
           name: 'Alex',
           imageUrl: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=100&auto=format&fit=crop',
         },
@@ -96,6 +98,7 @@ export function BirthdayCard() {
         id: '2',
         type: 'message',
         author: {
+          id: '2',
           name: 'Emma',
           imageUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=100&auto=format&fit=crop',
         },
@@ -108,6 +111,7 @@ export function BirthdayCard() {
         id: '3',
         type: 'video',
         author: {
+          id: '3',
           name: 'Michael',
           imageUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=100&auto=format&fit=crop',
         },
@@ -125,6 +129,7 @@ export function BirthdayCard() {
         id: '4',
         type: 'photo',
         author: {
+          id: '4',
           name: 'Lisa',
           imageUrl: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=100&auto=format&fit=crop',
         },
@@ -180,6 +185,11 @@ export function BirthdayCard() {
     setShowPostSubmittedAlert(true);
     setTimeout(() => setShowPostSubmittedAlert(false), 5000);
     triggerConfetti();
+  };
+
+  const handleNavigate = (path: string) => {
+    // Navigation logic here
+    console.log('Navigating to:', path);
   };
 
   return (
@@ -238,6 +248,31 @@ export function BirthdayCard() {
             <ReactionBar
               reactions={person.reactions}
               onEmojiClick={handleEmojiClick}
+            />
+
+            <Contributors
+              contributors={person.activities.reduce((acc, activity) => {
+                const contributor = acc.find(c => c.id === activity.author.id);
+                if (contributor) {
+                  contributor.contribution_count++;
+                } else {
+                  acc.push({
+                    id: activity.author.id,
+                    username: activity.author.name,
+                    full_name: activity.author.name,
+                    avatar_url: activity.author.imageUrl,
+                    contribution_count: 1
+                  });
+                }
+                return acc;
+              }, [] as Array<{
+                id: string;
+                username: string;
+                full_name: string;
+                avatar_url: string | null;
+                contribution_count: number;
+              }>)}
+              onViewProfile={(userId) => handleNavigate(`/users/${userId}`)}
             />
 
             <TopCelebrators

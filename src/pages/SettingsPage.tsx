@@ -192,21 +192,21 @@ export function SettingsPage({ onNavigate }: SettingsPageProps) {
             <TabsList className="grid w-full grid-cols-3 bg-white/10">
               <TabsTrigger
                 value="profile"
-                className="data-[state=active]:bg-white data-[state=active]:text-purple-600"
+                className="text-white data-[state=active]:bg-white data-[state=active]:text-purple-600"
               >
                 <User className="w-4 h-4 mr-2" />
                 Profile
               </TabsTrigger>
               <TabsTrigger
                 value="notifications"
-                className="data-[state=active]:bg-white data-[state=active]:text-purple-600"
+                className="text-white data-[state=active]:bg-white data-[state=active]:text-purple-600"
               >
                 <Bell className="w-4 h-4 mr-2" />
                 Notifications
               </TabsTrigger>
               <TabsTrigger
                 value="security"
-                className="data-[state=active]:bg-white data-[state=active]:text-purple-600"
+                className="text-white data-[state=active]:bg-white data-[state=active]:text-purple-600"
               >
                 <Lock className="w-4 h-4 mr-2" />
                 Security
