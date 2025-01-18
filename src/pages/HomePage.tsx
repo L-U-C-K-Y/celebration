@@ -11,7 +11,8 @@ import {
   Bell,
   Cake,
   Loader2,
-  AlertCircle
+  AlertCircle,
+  Repeat
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -35,6 +36,7 @@ interface Event {
   type: string;
   has_celebration: boolean;
   celebrations: { id: string }[] | null;
+  recurrence_pattern?: string | null;
 }
 
 interface Celebration {
@@ -45,7 +47,11 @@ interface Celebration {
   activities: any[];
 }
 
-export function HomePage({ onNavigate }: { onNavigate: (path: string) => void }) {
+interface HomePageProps {
+  onNavigate: (path: string) => void;
+}
+
+export function HomePage({ onNavigate }: HomePageProps) {
   const [events, setEvents] = useState<Event[]>([]);
   const [celebrations, setCelebrations] = useState<Celebration[]>([]);
   const [loading, setLoading] = useState(true);
@@ -74,7 +80,9 @@ export function HomePage({ onNavigate }: { onNavigate: (path: string) => void })
           title,
           date,
           type,
-          celebrations (id)
+          celebrations (id),
+          recurrence_pattern,
+          recurrence_end_date
         `)
         .eq('created_by', user.id)
         .order('date', { ascending: true })
@@ -142,7 +150,7 @@ export function HomePage({ onNavigate }: { onNavigate: (path: string) => void })
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-violet-600 via-purple-600 to-pink-600 pb-20 pt-10">
+    <div className="min-h-screen bg-gradient-to-b from-violet-600 via-purple-600 to-pink-600 pb-20">
       <div className="max-w-md mx-auto">
         {error && (
           <Alert variant="destructive" className="m-4">
@@ -262,7 +270,12 @@ export function HomePage({ onNavigate }: { onNavigate: (path: string) => void })
                       </Avatar>
                       <div className="flex-1">
                         <div className="flex items-center justify-between">
-                          <h3 className="text-white font-medium">{event.title}</h3>
+                          <div className="flex items-center space-x-2">
+                            <h3 className="text-white font-medium">{event.title}</h3>
+                            {event.recurrence_pattern && (
+                              <Repeat className="w-4 h-4 text-blue-300" />
+                            )}
+                          </div>
                           {event.has_celebration && (
                             <Check className="w-4 h-4 text-green-400" />
                           )}
@@ -278,6 +291,14 @@ export function HomePage({ onNavigate }: { onNavigate: (path: string) => void })
                               {calculateCountdown(event.date)} days until {event.type}
                             </div>
                           </div>
+                          {event.recurrence_pattern && (
+                            <div className="flex items-center mt-1 text-blue-300">
+                              <Repeat className="w-4 h-4 mr-1" />
+                              <span className="capitalize">
+                                Repeats {event.recurrence_pattern}
+                              </span>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -287,66 +308,66 @@ export function HomePage({ onNavigate }: { onNavigate: (path: string) => void })
             </div>
           )}
         </div>
+
+        {/* Create Event FAB */}
+        <button 
+          className="fixed right-4 bottom-4 bg-white text-purple-600 rounded-full p-4 shadow-lg hover:bg-white/90 transition-colors"
+          onClick={() => setCreateDialogOpen(true)}
+        >
+          <Plus className="w-6 h-6" />
+        </button>
+
+        {/* Create Options Dialog */}
+        <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>What would you like to create?</DialogTitle>
+              <DialogDescription>
+                Choose between a simple event reminder or a full celebration experience.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid grid-cols-1 gap-4 py-4">
+              <button
+                className="flex items-start space-x-4 bg-white/5 hover:bg-white/10 p-4 rounded-lg transition-colors text-left"
+                onClick={() => {
+                  setCreateDialogOpen(false);
+                  onNavigate('/create-event');
+                }}
+              >
+                <div className="p-3 bg-blue-100 rounded-lg">
+                  <Bell className="w-6 h-6 text-blue-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-medium mb-1">Event Reminder</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Set up a simple reminder for birthdays, anniversaries, or any special date. 
+                    We'll notify you when it's coming up.
+                  </p>
+                </div>
+              </button>
+
+              <button
+                className="flex items-start space-x-4 bg-white/5 hover:bg-white/10 p-4 rounded-lg transition-colors text-left"
+                onClick={() => {
+                  setCreateDialogOpen(false);
+                  onNavigate('/create');
+                }}
+              >
+                <div className="p-3 bg-purple-100 rounded-lg">
+                  <Cake className="w-6 h-6 text-purple-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-medium mb-1">Full Celebration</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Create an interactive celebration page where friends can share photos, 
+                    messages, and celebrate together.
+                  </p>
+                </div>
+              </button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
-
-      {/* Create Event FAB */}
-      <button 
-        className="fixed right-4 bottom-4 bg-white text-purple-600 rounded-full p-4 shadow-lg hover:bg-white/90 transition-colors"
-        onClick={() => setCreateDialogOpen(true)}
-      >
-        <Plus className="w-6 h-6" />
-      </button>
-
-      {/* Create Options Dialog */}
-      <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>What would you like to create?</DialogTitle>
-            <DialogDescription>
-              Choose between a simple event reminder or a full celebration experience.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid grid-cols-1 gap-4 py-4">
-            <button
-              className="flex items-start space-x-4 bg-white/5 hover:bg-white/10 p-4 rounded-lg transition-colors text-left"
-              onClick={() => {
-                setCreateDialogOpen(false);
-                onNavigate('/create-event');
-              }}
-            >
-              <div className="p-3 bg-blue-100 rounded-lg">
-                <Bell className="w-6 h-6 text-blue-600" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-medium mb-1">Event Reminder</h3>
-                <p className="text-sm text-muted-foreground">
-                  Set up a simple reminder for birthdays, anniversaries, or any special date. 
-                  We'll notify you when it's coming up.
-                </p>
-              </div>
-            </button>
-
-            <button
-              className="flex items-start space-x-4 bg-white/5 hover:bg-white/10 p-4 rounded-lg transition-colors text-left"
-              onClick={() => {
-                setCreateDialogOpen(false);
-                onNavigate('/create');
-              }}
-            >
-              <div className="p-3 bg-purple-100 rounded-lg">
-                <Cake className="w-6 h-6 text-purple-600" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-medium mb-1">Full Celebration</h3>
-                <p className="text-sm text-muted-foreground">
-                  Create an interactive celebration page where friends can share photos, 
-                  messages, and celebrate together.
-                </p>
-              </div>
-            </button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

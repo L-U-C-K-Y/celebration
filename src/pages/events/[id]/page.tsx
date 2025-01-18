@@ -1,5 +1,17 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Calendar, Bell, Gift, Loader2, AlertCircle, Clock, Settings, Plus, Trash2 } from 'lucide-react';
+import { 
+  ArrowLeft, 
+  Calendar, 
+  Bell, 
+  Gift, 
+  Loader2, 
+  AlertCircle, 
+  Clock, 
+  Settings, 
+  Plus, 
+  Trash2,
+  Repeat
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Input } from '@/components/ui/input';
@@ -31,6 +43,11 @@ interface Event {
     days_before: number;
     notification_type: 'email' | 'push';
   }>;
+  recurrence_pattern?: string | null;
+  recurrence_end_date?: string | null;
+  recurrence_days?: number[] | null;
+  recurrence_day_of_month?: number | null;
+  recurrence_week_of_month?: number | null;
 }
 
 export function EventDetailsPage({ eventId, onNavigate }: EventDetailsPageProps) {
@@ -222,6 +239,17 @@ export function EventDetailsPage({ eventId, onNavigate }: EventDetailsPageProps)
             <div className="text-center">
               <h2 className="text-2xl font-bold text-white mb-2">{event.title}</h2>
               <div className="text-white/80">{event.type}</div>
+              {event.recurrence_pattern && (
+                <div className="flex items-center justify-center mt-2 text-blue-300 space-x-2">
+                  <Repeat className="w-4 h-4" />
+                  <span className="capitalize">
+                    Repeats {event.recurrence_pattern}
+                    {event.recurrence_end_date && (
+                      <> until {new Date(event.recurrence_end_date).toLocaleDateString()}</>
+                    )}
+                  </span>
+                </div>
+              )}
             </div>
 
             <div className="flex items-center justify-center space-x-2 bg-white/10 px-4 py-2 rounded-full">
