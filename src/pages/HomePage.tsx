@@ -142,7 +142,7 @@ export function HomePage({ onNavigate }: { onNavigate: (path: string) => void })
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-violet-600 via-purple-600 to-pink-600 pb-20">
+    <div className="min-h-screen bg-gradient-to-b from-violet-600 via-purple-600 to-pink-600 pb-20 pt-10">
       <div className="max-w-md mx-auto">
         {error && (
           <Alert variant="destructive" className="m-4">
@@ -268,9 +268,15 @@ export function HomePage({ onNavigate }: { onNavigate: (path: string) => void })
                           )}
                         </div>
                         <div className="text-sm text-white/60">
-                          <div className="flex items-center">
-                            <Timer className="w-4 h-4 mr-1" />
-                            {calculateCountdown(event.date)} days until {event.type}
+                          <div className="flex items-center space-between">
+                            <div className="flex items-center mr-4">
+                              <Calendar className="w-4 h-4 mr-1" />
+                              {new Date(event.date).toLocaleDateString()}
+                            </div>
+                            <div className="flex items-center">
+                              <Timer className="w-4 h-4 mr-1" />
+                              {calculateCountdown(event.date)} days until {event.type}
+                            </div>
                           </div>
                         </div>
                       </div>
