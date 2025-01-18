@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Calendar, Clock, Bell, ArrowLeft, Loader2, AlertCircle, Plus, Trash2 } from 'lucide-react';
+import { Calendar, Clock, Bell, ArrowLeft, Loader2, AlertCircle, Plus, Trash2, Repeat } from 'lucide-react';
 import { format } from 'date-fns';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Button } from '@/components/ui/button';
@@ -36,6 +36,13 @@ const DEFAULT_REMINDERS: Reminder[] = [
   { days: 7, type: 'email' },
 ];
 
+const RECURRENCE_PATTERNS = [
+  { value: '', label: 'No Repeat' },
+  { value: 'yearly', label: 'Yearly' },
+  { value: 'monthly', label: 'Monthly' },
+  { value: 'weekly', label: 'Weekly' }
+] as const;
+
 export function CreateEventPage({ onNavigate }: CreateEventPageProps) {
   const [date, setDate] = useState<Date>();
   const [title, setTitle] = useState('');
@@ -43,6 +50,11 @@ export function CreateEventPage({ onNavigate }: CreateEventPageProps) {
   const [loading, setLoading] = useState(false);
   const [reminders, setReminders] = useState<Reminder[]>(DEFAULT_REMINDERS);
   const [error, setError] = useState<string | null>(null);
+  const [recurrencePattern, setRecurrencePattern] = useState('');
+  const [recurrenceEndDate, setRecurrenceEndDate] = useState<Date>();
+  const [recurrenceDays, setRecurrenceDays] = useState<number[]>([]);
+  const [recurrenceDayOfMonth, setRecurrenceDayOfMonth] = useState<number>();
+  const [recurrenceWeekOfMonth, setRecurrenceWeekOfMonth] = useState<number>();
   const { toast } = useToast();
 
   const addReminder = () => {
@@ -79,6 +91,16 @@ export function CreateEventPage({ onNavigate }: CreateEventPageProps) {
         description: 'Your event and reminders are being set up.',
       });
 
+      // Prepare recurrence data
+      const recurrenceData = recurrencePattern ? {
+        recurrence_pattern: recurrencePattern,
+        recurrence_interval: 1,
+        recurrence_end_date: recurrenceEndDate?.toISOString(),
+        recurrence_days: recurrencePattern === 'weekly' ? recurrenceDays : null,
+        recurrence_day_of_month: recurrencePattern === 'monthly' ? recurrenceDayOfMonth : null,
+        recurrence_week_of_month: recurrencePattern === 'monthly' ? recurrenceWeekOfMonth : null,
+      } : {};
+
       // Create event
       const { data: event, error: eventError } = await supabase
         .from('events')
@@ -87,6 +109,7 @@ export function CreateEventPage({ onNavigate }: CreateEventPageProps) {
           date: date.toISOString(),
           type,
           created_by: user.id,
+          ...recurrenceData
         })
         .select()
         .single();
@@ -126,6 +149,14 @@ export function CreateEventPage({ onNavigate }: CreateEventPageProps) {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRecurrencePatternChange = (pattern: string) => {
+    setRecurrencePattern(pattern);
+    // Reset pattern-specific fields
+    setRecurrenceDays([]);
+    setRecurrenceDayOfMonth(undefined);
+    setRecurrenceWeekOfMonth(undefined);
   };
 
   return (
@@ -213,6 +244,119 @@ export function CreateEventPage({ onNavigate }: CreateEventPageProps) {
               </Popover>
             </div>
 
+            {/* Recurrence Section */}
+            <div className="space-y-4">
+              <div className="flex items-center space-x-2">
+                <Repeat className="w-4 h-4 text-white" />
+                <Label className="text-white">Repeat</Label>
+              </div>
+
+              <select
+                value={recurrencePattern}
+                onChange={(e) => handleRecurrencePatternChange(e.target.value)}
+                className="w-full bg-white/20 border-white/20 text-white rounded-md px-3 py-2"
+                disabled={loading}
+              >
+                {RECURRENCE_PATTERNS.map(pattern => (
+                  <option key={pattern.value} value={pattern.value}>
+                    {pattern.label}
+                  </option>
+                ))}
+              </select>
+
+              {recurrencePattern && (
+                <div className="space-y-4">
+                  {recurrencePattern === 'weekly' && (
+                    <div className="space-y-2">
+                      <Label className="text-white">Repeat on</Label>
+                      <div className="flex flex-wrap gap-2">
+                        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, index) => (
+                          <button
+                            key={day}
+                            type="button"
+                            onClick={() => {
+                              setRecurrenceDays(prev =>
+                                prev.includes(index)
+                                  ? prev.filter(d => d !== index)
+                                  : [...prev, index]
+                              );
+                            }}
+                            className={cn(
+                              'px-3 py-1 rounded-full text-sm transition-colors',
+                              recurrenceDays.includes(index)
+                                ? 'bg-white text-blue-600'
+                                : 'bg-white/20 text-white hover:bg-white/30'
+                            )}
+                          >
+                            {day}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {recurrencePattern === 'monthly' && (
+                    <div className="space-y-4">
+                      <div>
+                        <Label className="text-white">Day of month</Label>
+                        <Input
+                          type="number"
+                          min="1"
+                          max="31"
+                          value={recurrenceDayOfMonth || ''}
+                          onChange={(e) => setRecurrenceDayOfMonth(parseInt(e.target.value))}
+                          className="bg-white/20 border-white/20 text-white"
+                          placeholder="Day (1-31)"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-white">Week of month</Label>
+                        <select
+                          value={recurrenceWeekOfMonth || ''}
+                          onChange={(e) => setRecurrenceWeekOfMonth(parseInt(e.target.value))}
+                          className="w-full bg-white/20 border-white/20 text-white rounded-md px-3 py-2"
+                        >
+                          <option value="">Select week</option>
+                          <option value="1">First</option>
+                          <option value="2">Second</option>
+                          <option value="3">Third</option>
+                          <option value="4">Fourth</option>
+                          <option value="-1">Last</option>
+                        </select>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="space-y-2">
+                    <Label className="text-white">End Date (Optional)</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            'w-full justify-start text-left font-normal bg-white/20 border-white/20 text-white',
+                            !recurrenceEndDate && 'text-white/60'
+                          )}
+                        >
+                          <Calendar className="mr-2 h-4 w-4" />
+                          {recurrenceEndDate ? format(recurrenceEndDate, 'PPP') : 'No end date'}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <CalendarComponent
+                          mode="single"
+                          selected={recurrenceEndDate}
+                          onSelect={setRecurrenceEndDate}
+                          disabled={(date) => date < (new Date())}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </div>
+              )}
+            </div>
+
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <Label className="text-white">Reminders</Label>
@@ -243,7 +387,7 @@ export function CreateEventPage({ onNavigate }: CreateEventPageProps) {
                     />
                     <select
                       value={reminder.type}
-                      onChange={(e) => updateReminder(index, 'type', e.target.value)}
+                      onChange={(e) => updateReminder(index, 'type', e.target.value as 'email' | 'push')}
                       className="bg-white/20 border-white/20 text-white rounded-md px-3 py-2"
                       disabled={loading}
                     >
