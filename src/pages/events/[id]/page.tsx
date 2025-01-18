@@ -7,7 +7,6 @@ import {
   Loader2, 
   AlertCircle, 
   Clock, 
-  Settings, 
   Plus, 
   Trash2,
   Repeat
@@ -214,12 +213,7 @@ export function EventDetailsPage({ eventId, onNavigate }: EventDetailsPageProps)
             <ArrowLeft className="w-6 h-6" />
           </button>
           <h1 className="text-2xl font-bold text-white">Event Details</h1>
-          <button
-            onClick={() => onNavigate('/settings')}
-            className="text-white hover:bg-white/10 p-2 rounded-full transition-colors"
-          >
-            <Settings className="w-6 h-6" />
-          </button>
+          <div className="w-10" />
         </div>
 
         {error && (
@@ -376,7 +370,7 @@ export function EventDetailsPage({ eventId, onNavigate }: EventDetailsPageProps)
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowRemindersDialog(false)}>
+            <Button variant=" outline" onClick={() => setShowRemindersDialog(false)}>
               Cancel
             </Button>
             <Button onClick={addReminder}>

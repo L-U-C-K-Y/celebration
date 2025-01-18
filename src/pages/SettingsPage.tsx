@@ -49,14 +49,35 @@ export function SettingsPage({ onNavigate }: SettingsPageProps) {
         .eq('id', user.id)
         .single();
 
-      if (profileError) throw profileError;
+      if (profileError) {
+        // If profile doesn't exist, create one with defaults
+        const { data: newProfile, error: createError } = await supabase
+          .from('profiles')
+          .insert({
+            id: user.id,
+            username: user.email?.split('@')[0],
+            full_name: '',
+            avatar_url: ''
+          })
+          .select()
+          .single();
 
-      setProfile({
-        username: profile.username || '',
-        fullName: profile.full_name || '',
-        avatarUrl: profile.avatar_url || '',
-        email: user.email || '',
-      });
+        if (createError) throw createError;
+        
+        setProfile({
+          username: newProfile.username || '',
+          fullName: newProfile.full_name || '',
+          avatarUrl: newProfile.avatar_url || '',
+          email: user.email || '',
+        });
+      } else {
+        setProfile({
+          username: profile.username || '',
+          fullName: profile.full_name || '',
+          avatarUrl: profile.avatar_url || '',
+          email: user.email || '',
+        });
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to load profile';
       setError(message);

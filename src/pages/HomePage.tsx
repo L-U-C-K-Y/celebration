@@ -1,23 +1,5 @@
 import { useState, useEffect } from 'react';
-import { 
-  PartyPopper, 
-  Gift, 
-  Crown, 
-  Calendar, 
-  Plus, 
-  Timer, 
-  ArrowRight, 
-  Check,
-  Bell,
-  Cake,
-  Loader2,
-  AlertCircle,
-  Repeat
-} from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Plus, Loader2, AlertCircle, Bell, Cake, Settings } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   Dialog,
@@ -28,6 +10,10 @@ import {
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase';
+
+import { HeroSection } from '@/components/home/HeroSection';
+import { RecentCelebrations } from '@/components/home/RecentCelebrations';
+import { EventsList } from '@/components/home/EventsList';
 
 interface Event {
   id: string;
@@ -97,8 +83,6 @@ export function HomePage({ onNavigate }: HomePageProps) {
       }));
 
       setEvents(processedEvents);
-
-      // Check if this is the first visit (no events)
       setIsFirstVisit(processedEvents.length === 0);
 
       // Load recent celebrations
@@ -130,14 +114,6 @@ export function HomePage({ onNavigate }: HomePageProps) {
     }
   };
 
-  const calculateCountdown = (date: string) => {
-    const eventDate = new Date(date);
-    const today = new Date();
-    const diffTime = eventDate.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-violet-600 via-purple-600 to-pink-600 flex items-center justify-center">
@@ -150,7 +126,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-violet-600 via-purple-600 to-pink-600 pb-20 pt-8">
+    <div className="min-h-screen bg-gradient-to-b from-violet-600 via-purple-600 to-pink-600 pt-8 pb-20">
       <div className="max-w-md mx-auto">
         {error && (
           <Alert variant="destructive" className="m-4">
@@ -159,155 +135,28 @@ export function HomePage({ onNavigate }: HomePageProps) {
           </Alert>
         )}
 
-        {/* Hero Section */}
-        <Card className="mx-4 mt-4 bg-white/10 text-white border-none shadow-lg">
-          <CardContent className="p-6 text-center space-y-4">
-            <div className="relative">
-              <div className="w-20 h-20 mx-auto bg-white/20 rounded-full flex items-center justify-center">
-                <PartyPopper className="w-10 h-10" />
-              </div>
-              <div className="absolute -right-2 top-0">
-                <Crown className="w-6 h-6 text-yellow-300" />
-              </div>
-            </div>
-            <h2 className="text-xl font-bold">
-              {isFirstVisit ? 'Welcome! Let\'s Start Celebrating' : 'Create Unforgettable Moments'}
-            </h2>
-            <p className="text-white/80">
-              {isFirstVisit 
-                ? 'Create your first event or celebration to get started'
-                : 'Join thousands celebrating special occasions'}
-            </p>
-            <Button 
-              className="w-full bg-white text-purple-600 hover:bg-white/90"
-              onClick={() => setCreateDialogOpen(true)}
-            >
-              <Gift className="w-4 h-4 mr-2" />
-              {isFirstVisit ? 'Create Your First Event' : 'Start Celebrating'}
-            </Button>
-          </CardContent>
-        </Card>
+        <HeroSection
+          isFirstVisit={isFirstVisit}
+          onCreateClick={() => setCreateDialogOpen(true)}
+        />
 
-        {/* Recent Celebrations */}
-        {celebrations.length > 0 && (
-          <div className="p-4">
-            <div className="flex justify-between items-center mb-3">
-              <h2 className="text-lg font-semibold text-white">Recent Celebrations</h2>
-              <Button 
-                variant="ghost" 
-                className="text-white hover:bg-white/10 p-0"
-                onClick={() => onNavigate('/celebrations')}
-              >
-                <ArrowRight className="w-4 h-4" />
-              </Button>
-            </div>
-            <ScrollArea className="w-full">
-              <div className="flex space-x-4 pb-4">
-                {celebrations.map(celebration => (
-                  <Card 
-                    key={celebration.id} 
-                    className="bg-white/10 border-none min-w-[280px] cursor-pointer hover:bg-white/20 transition-colors"
-                    onClick={() => onNavigate(`/celebrations/${celebration.id}`)}
-                  >
-                    <CardContent className="p-4">
-                      <div className="flex items-center space-x-3">
-                        <Avatar>
-                          <AvatarImage src={celebration.image_url} />
-                          <AvatarFallback>{celebration.title[0]}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <h3 className="text-white font-medium">{celebration.title}</h3>
-                          <div className="flex items-center text-sm text-white/60">
-                            <Calendar className="w-4 h-4 mr-1" />
-                            {new Date(celebration.date).toLocaleDateString()}
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </ScrollArea>
-          </div>
-        )}
+        <RecentCelebrations
+          celebrations={celebrations}
+          onNavigate={onNavigate}
+        />
 
-        {/* Events List */}
-        <div className="p-4">
-          <h2 className="text-lg font-semibold text-white mb-3">Upcoming Events</h2>
-          {events.length === 0 ? (
-            <Card className="bg-white/10 border-none p-8 text-center">
-              <div className="flex flex-col items-center space-y-4">
-                <Calendar className="w-12 h-12 text-white/60" />
-                <div className="space-y-2">
-                  <h3 className="text-lg font-medium text-white">No events yet</h3>
-                  <p className="text-white/60">
-                    Create your first event to start tracking important dates
-                  </p>
-                </div>
-                <Button
-                  onClick={() => onNavigate('/create-event')}
-                  className="bg-white text-purple-600 hover:bg-white/90"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add First Event
-                </Button>
-              </div>
-            </Card>
-          ) : (
-            <div className="space-y-4">
-              {events.map(event => (
-                <Card 
-                  key={event.id} 
-                  className="bg-white/10 border-none cursor-pointer hover:bg-white/20 transition-colors"
-                  onClick={() => onNavigate(`/events/${event.id}`)}
-                >
-                  <CardContent className="p-4">
-                    <div className="flex items-center space-x-4">
-                      <Avatar>
-                        <AvatarFallback className="bg-white/20 text-white">
-                          {event.title[0]}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-2">
-                            <h3 className="text-white font-medium">{event.title}</h3>
-                            {event.recurrence_pattern && (
-                              <Repeat className="w-4 h-4 text-blue-300" />
-                            )}
-                          </div>
-                          {event.has_celebration && (
-                            <Check className="w-4 h-4 text-green-400" />
-                          )}
-                        </div>
-                        <div className="text-sm text-white/60">
-                          <div className="flex items-center space-between">
-                            <div className="flex items-center mr-4">
-                              <Calendar className="w-4 h-4 mr-1" />
-                              {new Date(event.date).toLocaleDateString()}
-                            </div>
-                            <div className="flex items-center">
-                              <Timer className="w-4 h-4 mr-1" />
-                              {calculateCountdown(event.date)} days until {event.type}
-                            </div>
-                          </div>
-                          {event.recurrence_pattern && (
-                            <div className="flex items-center mt-1 text-blue-300">
-                              <Repeat className="w-4 h-4 mr-1" />
-                              <span className="capitalize">
-                                Repeats {event.recurrence_pattern}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </div>
+        <EventsList
+          events={events}
+          onNavigate={onNavigate}
+        />
+
+        {/* Settings FAB */}
+        <button 
+          className="fixed top-4 right-4 bg-white/10 hover:bg-white/20 text-white rounded-full p-3 backdrop-blur-sm transition-colors"
+          onClick={() => onNavigate('/settings')}
+        >
+          <Settings className="w-6 h-6" />
+        </button>
 
         {/* Create Event FAB */}
         <button 
