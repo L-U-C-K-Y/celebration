@@ -3,14 +3,13 @@ import {
   Calendar,
   Clock,
   Users,
-  Image as ImageIcon,
   MessageSquare,
   ArrowLeft,
   Cake,
   Loader2,
   AlertCircle,
-  Upload,
   X,
+  Crown,
 } from "lucide-react";
 import { format, differenceInYears } from "date-fns";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
@@ -33,6 +32,7 @@ import {
   generateThumbnail,
   uploadMedia,
 } from "@/lib/utils";
+import ThemeColorSelector from "@/components/create/ThemeColorSelector";
 
 type CelebrationType =
   | "Birthday"
@@ -87,9 +87,9 @@ interface CreatePageProps {
 
 export function CreatePage({ onNavigate }: CreatePageProps) {
   const [celebrationType, setCelebrationType] = useState<CelebrationType>("Birthday");
-  const [celebrationDate, setCelebrationDate] = useState<Date>(); // When the party happens
+  const [celebrationDate, setCelebrationDate] = useState<Date>();
   const [celebrationTime, setCelebrationTime] = useState("");
-  const [birthDate, setBirthDate] = useState<Date>(); // Original date of birth
+  const [birthDate, setBirthDate] = useState<Date>();
   const [celebrantName, setCelebrantName] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -99,6 +99,7 @@ export function CreatePage({ onNavigate }: CreatePageProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [themeColors, setThemeColors] = useState(['violet-600', 'purple-600', 'pink-600']);
   const { toast } = useToast();
 
   // Generate title based on type and details
@@ -136,12 +137,10 @@ export function CreatePage({ onNavigate }: CreatePageProps) {
     }
   }, [celebrationType, celebrantName, birthDate, celebrationDate]);
 
-  // Calculate age based on reference date
   const getAge = (birthDate: Date, referenceDate: Date = new Date()) => {
     return differenceInYears(referenceDate, birthDate);
   };
 
-  // Format description preview
   const getDescriptionPreview = () => {
     if (!celebrantName || !celebrationDate) return '';
     
@@ -228,7 +227,7 @@ export function CreatePage({ onNavigate }: CreatePageProps) {
           .from("events")
           .insert({
             title,
-            date: celebrationDate.toISOString(), // Use celebration date for the event
+            date: celebrationDate.toISOString(),
             type: celebrationType,
             created_by: user.id,
             is_recurring: true,
@@ -262,6 +261,7 @@ export function CreatePage({ onNavigate }: CreatePageProps) {
           celebrant_name: celebrantName,
           celebrant_birth_date: birthDate?.toISOString(),
           is_public: true,
+          theme_colors: themeColors,
         })
         .select()
         .single();
@@ -298,7 +298,13 @@ export function CreatePage({ onNavigate }: CreatePageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-violet-600 via-purple-600 to-pink-600">
+    <div className={`min-h-screen bg-gradient-to-b ${
+      themeColors.map((color, index) => 
+        index === 0 ? `from-${color}` : 
+        index === 1 ? `via-${color}` : 
+        `to-${color}`
+      ).join(' ')
+    }`}>
       <div className="max-w-md mx-auto p-4">
         <div className="flex items-center justify-between mb-6">
           <button
@@ -320,7 +326,64 @@ export function CreatePage({ onNavigate }: CreatePageProps) {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
+            <div className="text-center space-y-4">
+              <Label className="text-white block">Celebration Picture (Optional)</Label>
+              <div className="relative inline-block">
+                <div className={`w-32 h-32 mx-auto bg-white/20 backdrop-blur-lg rounded-full flex items-center justify-center transform hover:scale-105 transition-transform border-4 border-white/30 ${!preview ? 'cursor-pointer' : ''}`}>
+                  {preview ? (
+                    <img
+                      src={preview}
+                      alt="Avatar preview"
+                      className="w-full h-full rounded-full object-cover"
+                    />
+                  ) : (
+                    <Cake className="w-16 h-16 text-white" />
+                  )}
+                </div>
+                {!preview && (
+                  <Input
+                    id="image"
+                    type="file"
+                    accept="image/*"
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    onChange={handleImageSelect}
+                    disabled={loading || isUploading}
+                  />
+                )}
+                {preview && (
+                  <button
+                    type="button"
+                    onClick={removeImage}
+                    className="absolute -right-2 top-0 p-1 bg-black/50 rounded-full hover:bg-black/70 transition-colors"
+                    disabled={loading}
+                  >
+                    <X className="w-4 h-4 text-white" />
+                  </button>
+                )}
+                <div className="absolute -right-4 top-0">
+                  <Crown className="w-8 h-8 text-yellow-300" />
+                </div>
+              </div>
+              {isUploading && (
+                <p className="text-sm text-white/60">Uploading...</p>
+              )}
+            </div>
+
+            {celebrantName && celebrationDate && (
+              <div className="bg-white/10 p-4 rounded-lg space-y-4">
+                <div className="text-center space-y-2">
+                  <h3 className="text-2xl font-bold text-white">{celebrantName}</h3>
+                  {celebrationType === "Birthday" && birthDate && (
+                    <div className="text-xl font-medium text-white">
+                      Turning {getAge(birthDate, celebrationDate)} on{" "}
+                      {format(celebrationDate, "MMMM d, yyyy")}! 🎉
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+<div className="space-y-2">
               <Label className="text-white">Celebration Type</Label>
               <div className="grid grid-cols-2 gap-2">
                 {CELEBRATION_TYPES.map((type) => (
@@ -442,6 +505,13 @@ export function CreatePage({ onNavigate }: CreatePageProps) {
             )}
 
             <div className="space-y-2">
+              <ThemeColorSelector
+                value={themeColors}
+                onChange={setThemeColors}
+              />
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="location" className="text-white">
                 Location (Optional)
               </Label>
@@ -471,52 +541,6 @@ export function CreatePage({ onNavigate }: CreatePageProps) {
                   onChange={(e) => setDescription(e.target.value)}
                 />
               </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="image" className="text-white">
-                Cover Image (Optional)
-              </Label>
-              {!preview ? (
-                <div className="relative">
-                  <Input
-                    id="image"
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleImageSelect}
-                    disabled={loading || isUploading}
-                  />
-                  <Label
-                    htmlFor="image"
-                    className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-white/20 rounded-lg cursor-pointer hover:bg-white/5 transition-colors"
-                  >
-                    <Upload className="w-8 h-8 mb-2 text-white/60" />
-                    <span className="text-sm text-white">
-                      {isUploading ? "Uploading..." : "Click to upload image"}
-                    </span>
-                    <span className="text-xs text-white/60 mt-1">
-                      Max size: {formatFileSize(50 * 1024 * 1024)}
-                    </span>
-                  </Label>
-                </div>
-              ) : (
-                <div className="relative rounded-lg overflow-hidden">
-                  <img
-                    src={preview}
-                    alt="Cover preview"
-                    className="w-full h-48 object-cover"
-                  />
-                  <button
-                    type="button"
-                    onClick={removeImage}
-                    className="absolute top-2 right-2 p-1 bg-black/50 rounded-full hover:bg-black/70 transition-colors"
-                    disabled={loading}
-                  >
-                    <X className="w-4 h-4 text-white" />
-                  </button>
-                </div>
-              )}
             </div>
 
             <Button
