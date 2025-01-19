@@ -104,8 +104,8 @@ export function CreatePage({ onNavigate }: CreatePageProps) {
       const user = (await supabase.auth.getUser()).data.user;
       if (!user) throw new Error('Not authenticated');
 
-      // Start a Supabase transaction
-      const { error: insertError, data } = await supabase
+      // Step 1: Create the celebration
+      const { data: celebration, error: celebrationError } = await supabase
         .from('celebrations')
         .insert({
           title,
@@ -114,8 +114,8 @@ export function CreatePage({ onNavigate }: CreatePageProps) {
             date.getFullYear(),
             date.getMonth(),
             date.getDate(),
-            parseInt(time.split(':')[0]),
-            parseInt(time.split(':')[1])
+            parseInt(time.split(':')[0], 10),
+            parseInt(time.split(':')[1], 10)
           ).toISOString(),
           location,
           created_by: user.id,
@@ -124,17 +124,27 @@ export function CreatePage({ onNavigate }: CreatePageProps) {
         .select()
         .single();
 
-      if (insertError) throw insertError;
+      if (celebrationError) throw new Error(celebrationError.message);
 
-      if (data) {
-        // The trigger will handle settings creation
-        toast({
-          title: 'Success!',
-          description: 'Your celebration page has been created.',
-          variant: 'success',
+      // Step 2: Create the celebration settings
+      const { error: settingsError } = await supabase
+        .from('celebration_settings')
+        .insert({
+          celebration_id: celebration.id,
+          allow_downloads: true,
+          allow_sharing: true,
+          require_approval: false,
+          theme_colors: JSON.stringify(['violet-600', 'purple-600', 'pink-600']),
         });
-        onNavigate(`/celebrations/${data.id}`);
-      }
+
+      if (settingsError) throw new Error(settingsError.message);
+
+      toast({
+        title: 'Success!',
+        description: 'Your celebration page has been created.',
+        variant: 'success',
+      });
+      onNavigate(`/celebrations/${celebration.id}`);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to create celebration';
       setError(message);
