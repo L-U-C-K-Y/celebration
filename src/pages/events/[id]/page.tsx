@@ -370,7 +370,7 @@ export function EventDetailsPage({ eventId, onNavigate }: EventDetailsPageProps)
           </div>
 
           <DialogFooter>
-            <Button variant=" outline" onClick={() => setShowRemindersDialog(false)}>
+            <Button variant="outline" onClick={() => setShowRemindersDialog(false)}>
               Cancel
             </Button>
             <Button onClick={addReminder}>
