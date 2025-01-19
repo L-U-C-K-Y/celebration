@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 import {
   Gift,
   Share2,
@@ -15,14 +15,14 @@ import {
   MoreHorizontal,
   Video as VideoIcon,
   Play,
-} from 'lucide-react';
+} from "lucide-react";
 import {
   Card,
   CardContent,
   CardHeader,
   CardFooter,
-} from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+} from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Dialog,
   DialogContent,
@@ -31,33 +31,33 @@ import {
   DialogTitle,
   DialogDescription,
   DialogClose,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { supabase } from '@/lib/supabase';
-import { ProfileSection } from './ProfileSection';
-import { ReactionBar } from './ReactionBar';
-import { TopCelebrators } from './TopCelebrators';
-import { ActivityFeed } from './ActivityFeed';
-import { AddCelebrationDialog } from './AddCelebrationDialog';
-import { CelebrationCollage } from './CelebrationCollage';
-import { Contributors } from './Contributors';
-import type { Person } from '@/types';
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { supabase } from "@/lib/supabase";
+import { ProfileSection } from "./ProfileSection";
+import { ReactionBar } from "./ReactionBar";
+import { TopCelebrators } from "./TopCelebrators";
+import { ActivityFeed } from "./ActivityFeed";
+import { AddCelebrationDialog } from "./AddCelebrationDialog";
+import { CelebrationCollage } from "./CelebrationCollage";
+import { Contributors } from "./Contributors";
+import type { Person } from "@/types";
 
 export function BirthdayCard() {
   const [showConfetti, setShowConfetti] = useState(false);
   const [showMilestoneAlert, setShowMilestoneAlert] = useState(false);
   const [showTopCelebratorsInfo, setShowTopCelebratorsInfo] = useState(false);
-  const [timeLeft, setTimeLeft] = useState('');
+  const [timeLeft, setTimeLeft] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [showPostSubmittedAlert, setShowPostSubmittedAlert] = useState(false);
   const [showCollage, setShowCollage] = useState(false);
 
   // Example data
   const person: Person = {
-    name: 'Sarah Johnson',
-    birthDate: '1990-03-15',
+    name: "Sarah Johnson",
+    birthDate: "1990-03-15",
     age: 34,
     daysUntilBirthday: 0,
     isWithin24Hours: true,
@@ -65,85 +65,89 @@ export function BirthdayCard() {
     milestones: {
       current: 842,
       next: 1000,
-      reward: 'Epic Celebration Banner 🎊',
+      reward: "Epic Celebration Banner 🎊",
     },
     reactions: [
-      { type: '❤️', count: 156 },
-      { type: '🎉', count: 89 },
-      { type: '🎂', count: 67 },
-      { type: '🌟', count: 45 },
+      { type: "❤️", count: 156 },
+      { type: "🎉", count: 89 },
+      { type: "🎂", count: 67 },
+      { type: "🌟", count: 45 },
     ],
     activities: [
       {
-        id: '1',
-        type: 'photo',
+        id: "1",
+        type: "photo",
         author: {
-          id: '1',
-          name: 'Alex',
-          imageUrl: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=100&auto=format&fit=crop',
+          id: "1",
+          name: "Alex",
+          imageUrl:
+            "https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=100&auto=format&fit=crop",
         },
         content: [
-          'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?q=80&w=400&auto=format&fit=crop',
-          'https://images.unsplash.com/photo-1516483638261-f4dbaf036963?q=80&w=400&auto=format&fit=crop',
-          'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=400&auto=format&fit=crop'
+          "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?q=80&w=400&auto=format&fit=crop",
+          "https://images.unsplash.com/photo-1516483638261-f4dbaf036963?q=80&w=400&auto=format&fit=crop",
+          "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=400&auto=format&fit=crop",
         ],
-        timestamp: '2m ago',
+        timestamp: "2m ago",
         isEarlyBird: true,
         reactions: [
-          { type: '❤️', author: 'Emma', timestamp: '1m ago' },
-          { type: '🎉', author: 'John', timestamp: 'just now' },
+          { type: "❤️", author: "Emma", timestamp: "1m ago" },
+          { type: "🎉", author: "John", timestamp: "just now" },
         ],
       },
       {
-        id: '2',
-        type: 'message',
+        id: "2",
+        type: "message",
         author: {
-          id: '2',
-          name: 'Emma',
-          imageUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=100&auto=format&fit=crop',
+          id: "2",
+          name: "Emma",
+          imageUrl:
+            "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=100&auto=format&fit=crop",
         },
-        content: 'Happy birthday! 🎉 Hope this year brings you all the joy you deserve! Remember all the amazing moments we shared last year - here\'s to creating even more wonderful memories together! 💫',
-        timestamp: '5m ago',
+        content:
+          "Happy birthday! 🎉 Hope this year brings you all the joy you deserve! Remember all the amazing moments we shared last year - here's to creating even more wonderful memories together! 💫",
+        timestamp: "5m ago",
         isEarlyBird: true,
-        reactions: [{ type: '❤️', author: 'Michael', timestamp: '3m ago' }],
+        reactions: [{ type: "❤️", author: "Michael", timestamp: "3m ago" }],
       },
       {
-        id: '3',
-        type: 'video',
+        id: "3",
+        type: "video",
         author: {
-          id: '3',
-          name: 'Michael',
-          imageUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=100&auto=format&fit=crop',
+          id: "3",
+          name: "Michael",
+          imageUrl:
+            "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=100&auto=format&fit=crop",
         },
         content: [
-          'https://example.com/video1.mp4',
-          'https://example.com/video2.mp4'
+          "https://example.com/video1.mp4",
+          "https://example.com/video2.mp4",
         ],
-        timestamp: '10m ago',
+        timestamp: "10m ago",
         reactions: [
-          { type: '🎉', author: 'Alex', timestamp: '8m ago' },
-          { type: '❤️', author: 'Emma', timestamp: '7m ago' },
+          { type: "🎉", author: "Alex", timestamp: "8m ago" },
+          { type: "❤️", author: "Emma", timestamp: "7m ago" },
         ],
       },
       {
-        id: '4',
-        type: 'photo',
+        id: "4",
+        type: "photo",
         author: {
-          id: '4',
-          name: 'Lisa',
-          imageUrl: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=100&auto=format&fit=crop',
+          id: "4",
+          name: "Lisa",
+          imageUrl:
+            "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=100&auto=format&fit=crop",
         },
-        content: 'https://images.unsplash.com/photo-1516483638261-f4dbaf036963?q=80&w=400&auto=format&fit=crop',
-        timestamp: '15m ago',
-        reactions: [
-          { type: '🌟', author: 'John', timestamp: '12m ago' },
-        ],
+        content:
+          "https://images.unsplash.com/photo-1516483638261-f4dbaf036963?q=80&w=400&auto=format&fit=crop",
+        timestamp: "15m ago",
+        reactions: [{ type: "🌟", author: "John", timestamp: "12m ago" }],
       },
     ],
     topCelebrators: [
-      { name: 'Alex', score: 156, recentAction: 'Shared a photo' },
-      { name: 'Emma', score: 89, recentAction: 'Left a message' },
-      { name: 'Michael', score: 67, recentAction: 'Sent video' },
+      { name: "Alex", score: 156, recentAction: "Shared a photo" },
+      { name: "Emma", score: 89, recentAction: "Left a message" },
+      { name: "Michael", score: 67, recentAction: "Sent video" },
     ],
   };
 
@@ -178,7 +182,7 @@ export function BirthdayCard() {
     email: string;
     emoji: string;
     message?: string;
-    mediaType?: 'photo' | 'video';
+    mediaType?: "photo" | "video";
     mediaFiles?: File[];
   }) => {
     setDialogOpen(false);
@@ -189,7 +193,7 @@ export function BirthdayCard() {
 
   const handleNavigate = (path: string) => {
     // Navigation logic here
-    console.log('Navigating to:', path);
+    console.log("Navigating to:", path);
   };
 
   return (
@@ -225,7 +229,7 @@ export function BirthdayCard() {
             <Share2
               className="w-6 h-6 cursor-pointer hover:text-pink-200 transition-colors"
               onClick={() => {
-                alert('Share clicked! (Add real share logic here)');
+                alert("Share clicked! (Add real share logic here)");
               }}
             />
           </div>
@@ -236,10 +240,13 @@ export function BirthdayCard() {
             <ProfileSection
               name={person.name}
               age={person.age}
-              birthDateString={new Date(person.birthDate).toLocaleDateString('en-US', {
-                month: 'long',
-                day: 'numeric',
-              })}
+              birthDateString={new Date(person.birthDate).toLocaleDateString(
+                "en-US",
+                {
+                  month: "long",
+                  day: "numeric",
+                }
+              )}
               imageUrl={person.imageUrl}
               isWithin24Hours={person.isWithin24Hours}
               timeLeft={timeLeft}
@@ -250,33 +257,36 @@ export function BirthdayCard() {
               onEmojiClick={handleEmojiClick}
             />
 
-            <Contributors
-              contributors={person.activities.reduce((acc, activity) => {
-                const contributor = acc.find(c => c.id === activity.author.id);
-                if (contributor) {
-                  contributor.contribution_count++;
-                } else {
-                  acc.push({
-                    id: activity.author.id,
-                    username: activity.author.name,
-                    full_name: activity.author.name,
-                    avatar_url: activity.author.imageUrl,
-                    contribution_count: 1
-                  });
-                }
-                return acc;
-              }, [] as Array<{
-                id: string;
-                username: string;
-                full_name: string;
-                avatar_url: string | null;
-                contribution_count: number;
-              }>)}
-              onViewProfile={(userId) => handleNavigate(`/users/${userId}`)}
-            />
+            <TopCelebrators celebrators={person.topCelebrators} />
 
-            <TopCelebrators
-              celebrators={person.topCelebrators}
+            <Contributors
+              contributors={person.activities.reduce(
+                (acc, activity) => {
+                  const contributor = acc.find(
+                    (c) => c.id === activity.author.id
+                  );
+                  if (contributor) {
+                    contributor.contribution_count++;
+                  } else {
+                    acc.push({
+                      id: activity.author.id,
+                      username: activity.author.name,
+                      full_name: activity.author.name,
+                      avatar_url: activity.author.imageUrl,
+                      contribution_count: 1,
+                    });
+                  }
+                  return acc;
+                },
+                [] as Array<{
+                  id: string;
+                  username: string;
+                  full_name: string;
+                  avatar_url: string | null;
+                  contribution_count: number;
+                }>
+              )}
+              onViewProfile={(userId) => handleNavigate(`/users/${userId}`)}
             />
 
             <ActivityFeed
