@@ -126,23 +126,10 @@ export function CreatePage({ onNavigate }: CreatePageProps) {
 
       if (celebrationError) throw new Error(celebrationError.message);
 
-      // Step 2: Create the celebration settings
-      const { error: settingsError } = await supabase
-        .from('celebration_settings')
-        .insert({
-          celebration_id: celebration.id,
-          allow_downloads: true,
-          allow_sharing: true,
-          require_approval: false,
-          theme_colors: JSON.stringify(['violet-600', 'purple-600', 'pink-600']),
-        });
-
-      if (settingsError) throw new Error(settingsError.message);
-
       toast({
         title: 'Success!',
         description: 'Your celebration page has been created.',
-        variant: 'success',
+        variant: 'default',
       });
       onNavigate(`/celebrations/${celebration.id}`);
     } catch (err) {
