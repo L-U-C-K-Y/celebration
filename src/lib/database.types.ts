@@ -93,6 +93,8 @@ export type Database = {
       }
       celebrations: {
         Row: {
+          celebrant_birth_date: string | null
+          celebrant_name: string | null
           created_at: string | null
           created_by: string | null
           date: string
@@ -103,9 +105,12 @@ export type Database = {
           is_public: boolean | null
           location: string | null
           title: string
+          type: string | null
           updated_at: string | null
         }
         Insert: {
+          celebrant_birth_date?: string | null
+          celebrant_name?: string | null
           created_at?: string | null
           created_by?: string | null
           date?: string
@@ -116,9 +121,12 @@ export type Database = {
           is_public?: boolean | null
           location?: string | null
           title: string
+          type?: string | null
           updated_at?: string | null
         }
         Update: {
+          celebrant_birth_date?: string | null
+          celebrant_name?: string | null
           created_at?: string | null
           created_by?: string | null
           date?: string
@@ -129,6 +137,7 @@ export type Database = {
           is_public?: boolean | null
           location?: string | null
           title?: string
+          type?: string | null
           updated_at?: string | null
         }
         Relationships: [
