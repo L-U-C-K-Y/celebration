@@ -262,6 +262,9 @@ export function CreatePage({ onNavigate }: CreatePageProps) {
           celebrant_birth_date: birthDate?.toISOString(),
           is_public: true,
           theme_colors: themeColors,
+          allow_downloads: true,
+          allow_sharing: true,
+          require_approval: false,
         })
         .select()
         .single();

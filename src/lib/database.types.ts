@@ -47,52 +47,11 @@ export type Database = {
           },
         ]
       }
-      celebration_settings: {
+      celebrations: {
         Row: {
           allow_downloads: boolean | null
           allow_sharing: boolean | null
           background_music_url: string | null
-          celebration_id: string | null
-          created_at: string | null
-          id: string
-          require_approval: boolean | null
-          theme_colors: Json | null
-          updated_at: string | null
-        }
-        Insert: {
-          allow_downloads?: boolean | null
-          allow_sharing?: boolean | null
-          background_music_url?: string | null
-          celebration_id?: string | null
-          created_at?: string | null
-          id?: string
-          require_approval?: boolean | null
-          theme_colors?: Json | null
-          updated_at?: string | null
-        }
-        Update: {
-          allow_downloads?: boolean | null
-          allow_sharing?: boolean | null
-          background_music_url?: string | null
-          celebration_id?: string | null
-          created_at?: string | null
-          id?: string
-          require_approval?: boolean | null
-          theme_colors?: Json | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "celebration_settings_celebration_id_fkey"
-            columns: ["celebration_id"]
-            isOneToOne: true
-            referencedRelation: "celebrations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      celebrations: {
-        Row: {
           celebrant_birth_date: string | null
           celebrant_name: string | null
           created_at: string | null
@@ -104,11 +63,16 @@ export type Database = {
           image_url: string | null
           is_public: boolean | null
           location: string | null
+          require_approval: boolean | null
+          theme_colors: Json | null
           title: string
           type: string | null
           updated_at: string | null
         }
         Insert: {
+          allow_downloads?: boolean | null
+          allow_sharing?: boolean | null
+          background_music_url?: string | null
           celebrant_birth_date?: string | null
           celebrant_name?: string | null
           created_at?: string | null
@@ -120,11 +84,16 @@ export type Database = {
           image_url?: string | null
           is_public?: boolean | null
           location?: string | null
+          require_approval?: boolean | null
+          theme_colors?: Json | null
           title: string
           type?: string | null
           updated_at?: string | null
         }
         Update: {
+          allow_downloads?: boolean | null
+          allow_sharing?: boolean | null
+          background_music_url?: string | null
           celebrant_birth_date?: string | null
           celebrant_name?: string | null
           created_at?: string | null
@@ -136,6 +105,8 @@ export type Database = {
           image_url?: string | null
           is_public?: boolean | null
           location?: string | null
+          require_approval?: boolean | null
+          theme_colors?: Json | null
           title?: string
           type?: string | null
           updated_at?: string | null
